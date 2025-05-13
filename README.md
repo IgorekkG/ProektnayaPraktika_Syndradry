@@ -1,1 +1,1 @@
-# ProektnayaPraktika_Syndrathy
+# ProektnayaPraktika_Syndradry
