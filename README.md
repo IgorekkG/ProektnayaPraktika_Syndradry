@@ -1,1 +1,1 @@
-# ProektnayaPraktika_Synthadry
+# абоба
