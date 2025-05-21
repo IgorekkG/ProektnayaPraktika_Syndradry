@@ -34,6 +34,7 @@
 - Получите TOKEN и сохраните его в bot.py
 
 ![image](https://github.com/user-attachments/assets/97a6813d-2eff-49d8-81c8-0d5efbeda271)
+
 Ниже в сообщении показан токен вашего бота. Его нельзя разглашать.
 ### Шаг 2. Создание словарей с данными
 В файле bot.py добавьте:
@@ -76,6 +77,9 @@ application.run_polling()
 python main.py
 ```
 Проверьте в Telegram, что команда /start работает.
+
+![image](https://github.com/user-attachments/assets/a036bc8e-7c17-4dfe-83f0-285c17df6c20)
+
 ### Шаг 5. Обработка кнопок и показ существ
 Добавьте обработку нажатий:
 ```python
