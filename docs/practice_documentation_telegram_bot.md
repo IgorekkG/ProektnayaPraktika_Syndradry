@@ -28,6 +28,7 @@
 ## Пошаговое руководство
 ### Шаг 1. Создание бота
 - Перейдите к **BotFather** в Telegram
+![image](https://github.com/user-attachments/assets/b220e260-86b1-4b8d-99cb-2baee67fd499)
 - Введите /newbot и следуйте инструкциям
 - Получите TOKEN и сохраните его в bot.py
 ![image](https://github.com/user-attachments/assets/97a6813d-2eff-49d8-81c8-0d5efbeda271)
