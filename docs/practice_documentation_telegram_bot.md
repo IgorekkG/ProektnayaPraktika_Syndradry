@@ -13,18 +13,18 @@
 ## Проектирование технологии
 1. Получение API-токена через **BotFather**
 2. Настройка окружения:
-- Установка зависимостей: pip install python-telegram-bot
-- IDE: PyCharm
+  - Установка зависимостей: pip install python-telegram-bot
+  - IDE: PyCharm
 3. Создание структуры:
-- TGbot/
-- bot.py
-- images/ (подпапки bestiary/, locations/, notes/)
+  - TGbot/
+  - bot.py
+  - images/ (подпапки bestiary/, locations/, notes/)
 4. Организация данных:
-- Словари BESTIARY, LOCATIONS, STORY_NOTES
+  - Словари BESTIARY, LOCATIONS, STORY_NOTES
 5. Проектирование интерфейса:
-- Главное меню
-- Кнопки навигации
-- Вывод изображений и описаний
+  - Главное меню
+  - Кнопки навигации
+  - Вывод изображений и описаний
 ## Пошаговое руководство
 ### Шаг 1. Создание бота
 - Перейдите к **BotFather** в Telegram
