@@ -5,16 +5,13 @@ import os
 from pathlib import Path
 import asyncio
 
-# Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 
-# Replace with your bot token
 TOKEN = "7754735588:AAFkiW8ykrfvE3cMK-3uLuoC56dhKeRrC_g"
 
-# Data structures for game content
 BESTIARY = {
     "creature1": {
         "name": "Тодд",
@@ -39,7 +36,6 @@ BESTIARY = {
         "image_path1": "images/bestiary/Vendigo1.jpg",
         "image_path2": "images/bestiary/Vendigo2.jpg"
     },
-    # Add more creatures here
 }
 
 LOCATIONS = {
@@ -49,7 +45,6 @@ LOCATIONS = {
         "image_path1": "images/locations/forest2.jpg",
         "image_path2": "images/locations/forest1.jpg"
     },
-    # Add more locations here
 }
 
 STORY_NOTES = {
@@ -68,16 +63,13 @@ STORY_NOTES = {
         "description": "Высокий худой силуэт медленно движется меж деревьев. Он слегка пригнулся к земле, но рога все равно цепляются за ветки и ломают их. Очи-огоньки блуждают по окружающему его пространству, пока вдруг не остановились на охотнике...",
         "image_path1": "images/notes/note3.png"
     },
-    # Add more notes here
 }
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send a message when the command /start is issued."""
-    # Initialize message tracking in user_data
     context.user_data['last_media_messages'] = []
     context.user_data['last_keyboard_message'] = None
     
-    # Setup commands and menu button if not already set
     try:
         commands = [
             BotCommand("start", "Запустить бота и открыть главное меню")
@@ -100,7 +92,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def delete_previous_messages(context: ContextTypes.DEFAULT_TYPE, chat_id: int):
     """Delete previous media and keyboard messages."""
-    # Delete media messages
     if 'last_media_messages' in context.user_data:
         for msg_id in context.user_data['last_media_messages']:
             try:
@@ -109,7 +100,6 @@ async def delete_previous_messages(context: ContextTypes.DEFAULT_TYPE, chat_id: 
                 logging.error(f"Error deleting media message {msg_id}: {e}")
         context.user_data['last_media_messages'] = []
     
-    # Delete keyboard message
     if 'last_keyboard_message' in context.user_data and context.user_data['last_keyboard_message']:
         try:
             await context.bot.delete_message(chat_id=chat_id, message_id=context.user_data['last_keyboard_message'])
@@ -123,7 +113,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     if query.data == 'bestiary':
-        # Delete previous messages
         await delete_previous_messages(context, query.message.chat_id)
         
         keyboard = [[InlineKeyboardButton(item["name"], callback_data=f'beast_{key}')] 
@@ -136,7 +125,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     
     elif query.data == 'locations':
-        # Delete previous messages
         await delete_previous_messages(context, query.message.chat_id)
         
         keyboard = [[InlineKeyboardButton(item["name"], callback_data=f'loc_{key}')] 
@@ -149,7 +137,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     
     elif query.data == 'notes':
-        # Delete previous messages
         await delete_previous_messages(context, query.message.chat_id)
         
         keyboard = [[InlineKeyboardButton(item["name"], callback_data=f'note_{key}')] 
@@ -162,7 +149,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     
     elif query.data == 'main_menu':
-        # Delete previous messages
         await delete_previous_messages(context, query.message.chat_id)
         
         keyboard = [
@@ -183,7 +169,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         try:
-            # Проверяем существование файлов перед открытием
             if not os.path.exists(item['image_path1']):
                 logging.error(f"File not found: {item['image_path1']}")
                 raise FileNotFoundError(f"Image file not found: {item['image_path1']}")
@@ -191,7 +176,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             media_group = []
             caption = f"{item['name']}\n\n{item['description']}"
             
-            # Открываем первое изображение
             try:
                 media_group.append(
                     InputMediaPhoto(
@@ -203,7 +187,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 logging.error(f"Error opening first image {item['image_path1']}: {str(e)}")
                 raise
             
-            # Добавляем второе изображение, если оно есть
             if 'image_path2' in item:
                 if not os.path.exists(item['image_path2']):
                     logging.error(f"Second image file not found: {item['image_path2']}")
@@ -220,26 +203,21 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not media_group:
                 raise Exception("No valid images to send")
             
-            # Delete previous messages before sending new ones
             await delete_previous_messages(context, query.message.chat_id)
             
-            # Отправляем группу изображений
             sent_media = await context.bot.send_media_group(
                 chat_id=query.message.chat_id,
                 media=media_group
             )
             
-            # Store message IDs for later deletion
             context.user_data['last_media_messages'] = [msg.message_id for msg in sent_media]
             
-            # Отправляем клавиатуру отдельно
             keyboard_message = await context.bot.send_message(
                 chat_id=query.message.chat_id,
                 text="Выберите действие:",
                 reply_markup=reply_markup
             )
             
-            # Store keyboard message ID
             context.user_data['last_keyboard_message'] = keyboard_message.message_id
             
         except FileNotFoundError as e:
@@ -257,7 +235,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=reply_markup
             )
         finally:
-            # Закрываем все открытые файлы
             for media in media_group:
                 try:
                     if hasattr(media.media, 'close'):
@@ -272,7 +249,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         try:
-            # Проверяем существование файлов перед открытием
             if not os.path.exists(item['image_path1']):
                 logging.error(f"File not found: {item['image_path1']}")
                 raise FileNotFoundError(f"Image file not found: {item['image_path1']}")
@@ -280,7 +256,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             media_group = []
             caption = f"{item['name']}\n\n{item['description']}"
             
-            # Открываем первое изображение
             try:
                 media_group.append(
                     InputMediaPhoto(
@@ -292,7 +267,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 logging.error(f"Error opening first image {item['image_path1']}: {str(e)}")
                 raise
             
-            # Добавляем второе изображение, если оно есть
             if 'image_path2' in item:
                 if not os.path.exists(item['image_path2']):
                     logging.error(f"Second image file not found: {item['image_path2']}")
@@ -309,26 +283,21 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not media_group:
                 raise Exception("No valid images to send")
             
-            # Delete previous messages before sending new ones
             await delete_previous_messages(context, query.message.chat_id)
             
-            # Отправляем группу изображений
             sent_media = await context.bot.send_media_group(
                 chat_id=query.message.chat_id,
                 media=media_group
             )
             
-            # Store message IDs for later deletion
             context.user_data['last_media_messages'] = [msg.message_id for msg in sent_media]
             
-            # Отправляем клавиатуру отдельно
             keyboard_message = await context.bot.send_message(
                 chat_id=query.message.chat_id,
                 text="Выберите действие:",
                 reply_markup=reply_markup
             )
             
-            # Store keyboard message ID
             context.user_data['last_keyboard_message'] = keyboard_message.message_id
             
         except FileNotFoundError as e:
@@ -346,7 +315,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=reply_markup
             )
         finally:
-            # Закрываем все открытые файлы
             for media in media_group:
                 try:
                     if hasattr(media.media, 'close'):
@@ -361,7 +329,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         try:
-            # Проверяем существование файлов перед открытием
             if not os.path.exists(item['image_path1']):
                 logging.error(f"File not found: {item['image_path1']}")
                 raise FileNotFoundError(f"Image file not found: {item['image_path1']}")
@@ -369,7 +336,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             media_group = []
             caption = f"{item['name']}\n\n{item['description']}"
             
-            # Открываем первое изображение
             try:
                 media_group.append(
                     InputMediaPhoto(
@@ -381,7 +347,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 logging.error(f"Error opening first image {item['image_path1']}: {str(e)}")
                 raise
             
-            # Добавляем второе изображение, если оно есть
             if 'image_path2' in item:
                 if not os.path.exists(item['image_path2']):
                     logging.error(f"Second image file not found: {item['image_path2']}")
@@ -398,26 +363,21 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if not media_group:
                 raise Exception("No valid images to send")
             
-            # Delete previous messages before sending new ones
             await delete_previous_messages(context, query.message.chat_id)
             
-            # Отправляем группу изображений
             sent_media = await context.bot.send_media_group(
                 chat_id=query.message.chat_id,
                 media=media_group
             )
             
-            # Store message IDs for later deletion
             context.user_data['last_media_messages'] = [msg.message_id for msg in sent_media]
             
-            # Отправляем клавиатуру отдельно
             keyboard_message = await context.bot.send_message(
                 chat_id=query.message.chat_id,
                 text="Выберите действие:",
                 reply_markup=reply_markup
             )
             
-            # Store keyboard message ID
             context.user_data['last_keyboard_message'] = keyboard_message.message_id
             
         except FileNotFoundError as e:
@@ -435,7 +395,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=reply_markup
             )
         finally:
-            # Закрываем все открытые файлы
             for media in media_group:
                 try:
                     if hasattr(media.media, 'close'):
@@ -445,14 +404,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     """Start the bot."""
-    # Create the Application
     application = Application.builder().token(TOKEN).build()
 
-    # Add handlers
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_handler))
 
-    # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
